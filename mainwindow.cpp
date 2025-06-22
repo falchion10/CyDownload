@@ -1,5 +1,6 @@
 #include <QMessageBox>
 #include <QStandardPaths>
+#include <QRegularExpression>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "helpers.h"
@@ -244,41 +245,30 @@ void MainWindow::repoInfoDownloaded()
             continue;
         }
 
-        QRegExp rx("^(.*): (.*)");
-        rx.indexIn(line);
+        QRegularExpression rx(R"(^(.+): (.+))");
+        QRegularExpressionMatch match = rx.match(line);
 
-        if (rx.cap(1).trimmed().toLower() == "package")
-            pkg.packageid = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "version")
-            pkg.version = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "section")
-            pkg.section = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "maintainer")
-            pkg.maintainer = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "depends")
-            pkg.depends = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "architecture")
-            pkg.architecture = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "filename")
-            pkg.filename = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "size")
-            pkg.size = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "installed-size")
-            pkg.installedsize = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "md5sum")
-            pkg.md5sum = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "description")
-            pkg.description = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "name")
-            pkg.name = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "author")
-            pkg.author = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "website")
-            pkg.website = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "depiction")
-            pkg.depiction = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "tag")
-            pkg.tags = rx.cap(2).trimmed();
+        if (match.hasMatch()) {
+            QString key = match.captured(1).trimmed().toLower();
+            QString value = match.captured(2).trimmed();
+
+         if (key == "package")         pkg.packageid     = value;
+         else if (key == "version")    pkg.version       = value;
+          else if (key == "section")    pkg.section       = value;
+          else if (key == "maintainer") pkg.maintainer    = value;
+          else if (key == "depends")    pkg.depends       = value;
+          else if (key == "architecture") pkg.architecture = value;
+          else if (key == "filename")   pkg.filename      = value;
+          else if (key == "size")       pkg.size          = value;
+          else if (key == "installed-size") pkg.installedsize = value;
+          else if (key == "md5sum")     pkg.md5sum        = value;
+          else if (key == "description") pkg.description  = value;
+          else if (key == "name")       pkg.name          = value;
+          else if (key == "author")     pkg.author        = value;
+          else if (key == "website")    pkg.website       = value;
+          else if (key == "depiction")  pkg.depiction     = value;
+          else if (key == "tag")        pkg.tags          = value;
+        }
     }
 
     //and close it
@@ -332,18 +322,22 @@ void MainWindow::on_btn_open_repo_clicked()
 void MainWindow::on_btn_new_repo_clicked()
 {
     m_dr = new dialogrepo();
-    m_dr->exec();
+    if (m_dr->exec() == QDialog::Accepted) {
+        QString url = m_dr->getText().trimmed();
+        if (!url.isEmpty()) {
+            // Add to the combo box
+            ui->cmb_repo_urls->insertItem(ui->cmb_repo_urls->count(), url);
+            ui->cmb_repo_urls->setCurrentIndex(ui->cmb_repo_urls->count() - 1);
+            ui->btn_open_repo->setEnabled(true);
+            ui->btn_del_repo->setEnabled(true);
 
-    //add to the combo box
-    ui->cmb_repo_urls->insertItem(ui->cmb_repo_urls->count(), m_dr->getText());
-    ui->cmb_repo_urls->setCurrentIndex(ui->cmb_repo_urls->count()-1);
-    ui->btn_open_repo->setEnabled(true);
-    ui->btn_del_repo->setEnabled(true);
-
-    //write it to the file
-    helpers::addRepoToFile(m_dr->getText(), REPO_URL_FILE_PATH);
+            // Write it to the file
+            helpers::addRepoToFile(url, REPO_URL_FILE_PATH);
+        }
+    }
 
     delete m_dr;
+    m_dr = nullptr;
 }
 
 void MainWindow::on_cmb_repo_urls_currentIndexChanged(int index)

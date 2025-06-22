@@ -80,3 +80,11 @@ FORMS += \
         mainwindow.ui \
     dialogrepo.ui \
     repodialog.ui
+
+QMAKE_LIBS -= -framework AGL
+QMAKE_FRAMEWORKS -= AGL
+QMAKE_LFLAGS -= -framework AGL
+
+QMAKE_EXTRA_TARGETS += fix_makefile
+fix_makefile.commands = sed -i '' 's/-framework AGL//g' Makefile
+QMAKE_AFTER_LINK += fix_makefile
