@@ -1,4 +1,4 @@
-Built with Qt 6.9.0
+Built with Qt 6.9.3
 
 Focused on building for Apple Silicon Macs running macOS 11.0 and later.
 
@@ -10,8 +10,11 @@ Focused on building for Apple Silicon Macs running macOS 11.0 and later.
 `cd cydownload`
 
 `qmake cydownload.pro`
+May need to add `CONFIG+=sdk_no_version_check` to qmake on macOS Tahoe for now.
 
-You might need to remove `-framework AGL` from the Makefile, I have no idea why it's being added or how. AGL was removed in macOS 10.11
+~~You might need to remove `-framework AGL` from the Makefile, I have no idea why it's being added or how. AGL was deprecated in macOS 10.11~~
+
+No longer needed to remove AGL framework from the Makefile as in macOS Tahoe the framework has been completely removed.
 
 `make`
 
