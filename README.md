@@ -10,7 +10,8 @@ Focused on building for Apple Silicon Macs running macOS 11.0 and later.
 `cd cydownload`
 
 `qmake cydownload.pro`
-May need to add `CONFIG+=sdk_no_version_check` to qmake on macOS Tahoe for now.
+
+May need to add `CONFIG+=sdk_no_version_check` to qmake command above on macOS Tahoe for now.
 
 ~~You might need to remove `-framework AGL` from the Makefile, I have no idea why it's being added or how. AGL was deprecated in macOS 10.11~~
 
